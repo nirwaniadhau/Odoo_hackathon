@@ -1,0 +1,47 @@
+-- ===============================
+-- Company Table
+-- ===============================
+CREATE TABLE companies (
+    company_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    country VARCHAR(100) NOT NULL,
+    currency VARCHAR(10) NOT NULL, -- base currency for company
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NULL, -- NULL until admin sends password
+    role ENUM('ADMIN', 'MANAGER', 'EMPLOYEE', 'FINANCE', 'DIRECTOR') NOT NULL DEFAULT 'EMPLOYEE',
+    manager_id INT NULL, -- for employees, links to their manager
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (company_id) REFERENCES companies(company_id),
+    FOREIGN KEY (manager_id) REFERENCES users(user_id)
+);
+
+
+-- ===============================
+-- Expenses Table
+-- ===============================
+CREATE TABLE expenses (
+    expense_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL, -- who submitted
+    description TEXT NOT NULL, -- what the expense is for
+    category VARCHAR(50) NOT NULL, -- e.g., Travel, Food, etc.
+    expense_date DATE NOT NULL, -- date of the expense
+    payment_method VARCHAR(50), -- Paid by Cash, Card, etc.
+    amount DECIMAL(10,2) NOT NULL, -- amount entered by employee
+    currency VARCHAR(10) NOT NULL, -- currency of employee
+    converted_amount DECIMAL(10,2) NOT NULL, -- converted to company currency for manager/admin view
+    remarks TEXT, -- any additional comments from employee
+    status ENUM('DRAFT', 'WAITING_APPROVAL', 'APPROVED', 'REJECTED') DEFAULT 'DRAFT',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+
